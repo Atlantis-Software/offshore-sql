@@ -1,0 +1,50 @@
+{
+  "name": "sails-sql",
+  "version": "0.0.1",
+  "description": "Sql Databases adapter for Sails.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Atlantis-Software/sails-sql.git"
+  },
+  "keywords": [
+    "orm",
+    "waterline",
+    "sql",
+    "sails",
+    "sailsjs",
+    "sails.js"
+  ],
+  "author": {
+    "name": "Atlantis Software"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {
+	"knex": ">=0.8.3",
+	"asynk": ">=0.0.6",
+    "underscore": ">=1.8.3",
+	"waterline-cursor": "~0.0.5",
+	"waterline-errors": "~0.10.1"
+  },
+  "devDependencies": {
+    "mocha": "~2.2.4",
+    "waterline-adapter-tests": "~0.10.10",
+    "captains-log": "~0.11.11"
+  },
+  "waterlineAdapter": {
+    "waterlineVersion": "~0.10.0",
+    "interfaces": [
+      "semantic",
+      "queryable",
+      "associations"
+    ]
+  },
+  "readme": "![image_squidhome@2x.png](http://i.imgur.com/RIvu9.png) \n\n# Sql Databases Adapter for Sails Application.\n",
+  "bugs": {
+    "url": "https://github.com/Atlantis-Software/sails-sql/issues"
+  }
+}
