@@ -1,1 +1,1 @@
-# sails-sql
+# offshore-sql
