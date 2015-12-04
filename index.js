@@ -157,13 +157,9 @@ module.exports = (function () {
                 connection.dialect.dropTable(connection,collection).asCallback(callback);
             }
 
-            asynk.each(relations, dropTable).args(asynk.item, asynk.callback).serie(function (err, result) {
-                if (err) {
-                    return cb(err);
-                }
+            asynk.each(relations, dropTable).serie().done(function() {
                 dropTable(tableName, cb);
-            }, [null]);
-
+            }).fail(cb);
         },
         createEach: function (connectionName, tableName, valuesList, cb) {
             var self = this;
@@ -181,20 +177,14 @@ module.exports = (function () {
                     records.push(record);
                     cb(null,record);
                 });
-            }).args(asynk.item, asynk.callback).parallel(function (err) {
-                if (err) {
-                    return cb(err);
-                }
-                
+            }).parallel().done(function() {
                 if (!records.length) {
                     return cb(null, []);
                 }
-                
                 cb(null, records);
-            }, [null]);
+            }).fail(cb);
         },
         create: function (connectionName, tableName, data, cb) {
-            var self = this;
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -204,19 +194,19 @@ module.exports = (function () {
             connection.dialect.insert(connection,collection,_insertData).asCallback(cb);
         },
         destroy: function (connectionName, collectionName, options, cb) {
-            var self = this;
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
             }
             var collection = connection.collections[collectionName];
-            asynk.add(function (callback) { connection.dialect.select(connection, collection, options).asCallback(callback); }).args(asynk.callback).alias('select')
-                .add(function (callback) { connection.dialect.delete(connection, collection, options).asCallback(callback); }).args(asynk.callback)
-                .serie(cb, [null, asynk.data('select')]);
+            asynk.add(function (callback) { connection.dialect.select(connection, collection, options).asCallback(callback); }).alias('select')
+                .add(function (callback) { connection.dialect.delete(connection, collection, options).asCallback(callback); })
+                .serie([asynk.data('select')]).done(function(select){
+                  cb(null,select);
+                }).fail(cb);
 
         },
         update: function (connectionName, collectionName, options, values, cb) {
-            var self = this;
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -236,10 +226,10 @@ module.exports = (function () {
                     idsoptions.where[pk] = ids;
                     callback(null,idsoptions);
                 });
-            }).args(asynk.callback).alias('ids')
+            }).alias('ids')
                 .add(function(idsoptions,callback){connection.dialect.update(connection, collection, idsoptions, values).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
                 .add(function(idsoptions,callback){connection.dialect.select(connection, collection, idsoptions).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
-                .serie(function(err,data){ cb(err,data[2]); }, [null, asynk.data('all')]);
+                .serie().done(function(data){ cb(null,data[2]); }).fail(cb);
         },
         query: function(connectionName, collectionName, query, data, cb, connection) {
             var connection = connections[connectionName];
