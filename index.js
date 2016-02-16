@@ -36,6 +36,11 @@ module.exports = (function () {
             var dialect;
             var knexClient;
             switch(connection.dbType) {
+                case 'mariadb':
+                    knexClient = 'mariadb';
+                    connection.db = connection.database;
+                    dialect = new mysqlDialect();
+                    break;
                 case 'mysql':
                     knexClient = 'mysql';
                     dialect = new mysqlDialect();
@@ -44,17 +49,11 @@ module.exports = (function () {
                     knexClient = 'oracledb';
                     dialect = new oracleDialect();
             }
-            console.log('connection',connection);
             if (!connection.identity)
                 return cb("Errors.IdentityMissing");
             if (connections[connection.identity])
                 return cb("Errors.IdentityDuplicate");
-            var client = Knex({client: knexClient, connection: connection,
-                pool: {
-                    min: 0,
-                    max: 10
-                }, debug: LOG_QUERIES
-            });
+            var client = Knex({ client: knexClient, connection: connection, debug: LOG_QUERIES });
             // Store the connection
             connections[connection.identity] = {
                 dialect: dialect,
@@ -126,8 +125,7 @@ module.exports = (function () {
                 collection.schema = normalizedSchema;
                 cb(null, normalizedSchema);
             }, LOG_QUERIES);
-        }
-        ,
+        },
         find: function (connectionName, tableName, options, cb) {
             if (options.groupBy || options.sum || options.average || options.min || options.max) {
                 if (!options.sum && !options.average && !options.min && !options.max) {
@@ -141,6 +139,14 @@ module.exports = (function () {
             var collection = connection.collections[tableName];
             /* replace attributes names by columnNames */
             connection.dialect.select(connection, collection, options).asCallback(cb);
+        },
+        count: function (connectionName, tableName, options, cb) {
+            var connection = connections[connectionName];
+            if (!connection) {
+                return cb(util.format('Unknown connection `%s`', connectionName));
+            }
+            var collection = connection.collections[tableName];
+            connection.dialect.count(connection, collection, options).asCallback(cb);
         },
         drop: function (connectionName, tableName, relations, cb) {
             var connection = connections[connectionName];
@@ -191,7 +197,9 @@ module.exports = (function () {
             }
             var collection = connection.collections[tableName];
             var _insertData = Utils.prepareValues(_.clone(data));
-            connection.dialect.insert(connection,collection,_insertData).asCallback(cb);
+            connection.dialect.insert(connection,collection,_insertData).asCallback(function(err,data){
+              cb(err,data);
+            });
         },
         destroy: function (connectionName, collectionName, options, cb) {
             var connection = connections[connectionName];
@@ -229,7 +237,9 @@ module.exports = (function () {
             }).alias('ids')
                 .add(function(idsoptions,callback){connection.dialect.update(connection, collection, idsoptions, values).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
                 .add(function(idsoptions,callback){connection.dialect.select(connection, collection, idsoptions).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
-                .serie().done(function(data){ cb(null,data[2]); }).fail(cb);
+                .serie().done(function(data){
+                  cb(null,data[2]); 
+              }).fail(cb);
         },
         query: function(connectionName, collectionName, query, data, cb, connection) {
             var connection = connections[connectionName];
