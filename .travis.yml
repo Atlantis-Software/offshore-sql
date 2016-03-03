@@ -8,3 +8,4 @@ services: mysql
 sudo: false
 before_script:
   - mysql -e 'create database offshoreSql;'
+  - npm install mysql --save
