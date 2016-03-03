@@ -5,7 +5,7 @@ var Utils = require('./lib/utils');
 var _ = require('underscore');
 var Errors = require('offshore-errors').adapter;
 var util = require('util');
-var LOG_QUERIES = true;
+var LOG_QUERIES = false;
 var LOG_ERRORS = true;
 
 var oracleDialect = require('./lib/dialects/oracleDialect.js');
