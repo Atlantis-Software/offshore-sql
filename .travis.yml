@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - "5.5"
+  - "4.2"
+  - "0.12"
+  - "0.10"
+services: mysql
+sudo: false
+before_script:
+  - mysql -e 'create database offshoreSql;'
+  - npm install mysql --save
+env:
+  - OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_HOST=127.0.0.1 OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_USER=root OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_PASSWORD='' WATERLINE_ADAPTER_TESTS_DATABASE=offshoreSql OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_DB_TYPE=mysql
