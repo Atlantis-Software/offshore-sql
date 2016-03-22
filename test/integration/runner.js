@@ -14,9 +14,9 @@
  */
 
 var util = require('util');
-var mocha = require('../../node_modules/mocha');
-var log = require('../../node_modules/captains-log')();
-var TestRunner = require('../../node_modules/offshore-adapter-tests');
+var mocha = require('mocha');
+var log = require('captains-log')();
+var TestRunner = require('offshore-adapter-tests');
 var Adapter = require('../../index.js');
 
 
@@ -74,5 +74,8 @@ new TestRunner({
 
   // The set of adapter interfaces to test against.
   // (grabbed these from this adapter's package.json file above)
-  interfaces: interfaces
+  interfaces: interfaces,
+
+  // Return code non zero if any test fails
+  failOnError: true
 });

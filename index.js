@@ -1,4 +1,4 @@
-var Knex = require('./node_modules/knex');
+var Knex = require('knex');
 var asynk = require('asynk');
 var Cursor = require('./lib/cursor');
 var Utils = require('./lib/utils');
