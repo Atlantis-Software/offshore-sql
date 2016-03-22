@@ -14,9 +14,9 @@
  */
 
 var util = require('util');
-var mocha = require('../../node_modules/mocha');
-var log = require('../../node_modules/captains-log')();
-var TestRunner = require('../../node_modules/offshore-adapter-tests');
+var mocha = require('mocha');
+var log = require('captains-log')();
+var TestRunner = require('offshore-adapter-tests');
 var Adapter = require('../../index.js');
 
 
