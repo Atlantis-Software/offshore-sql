@@ -1,6 +1,6 @@
 {
   "name": "offshore-sql",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Sql Databases adapter for offshore",
   "main": "index.js",
   "scripts": {
@@ -28,11 +28,11 @@
   },
   "devDependencies": {
     "mocha": "~2.2.4",
-    "offshore-adapter-tests": "~0.0.4",
+    "offshore-adapter-tests": "~0.0.5",
     "captains-log": "~0.11.11"
   },
   "offshoreAdapter": {
-    "offshoreVersion": "~0.0.2",
+    "offshoreVersion": "~0.0.5",
     "interfaces": [
       "semantic",
       "queryable",
