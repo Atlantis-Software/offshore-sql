@@ -11,7 +11,7 @@ var LOG_ERRORS = true;
 var oracleDialect = require('./lib/dialects/oracleDialect.js');
 var mysqlDialect = require('./lib/dialects/mysqlDialect.js');
 
-module.exports = (function () {
+module.exports = (function() {
     var connections = {};
 
     var adapter = {
@@ -32,7 +32,7 @@ module.exports = (function () {
             migrate: 'safe'
         },
         dialect: null,
-        registerConnection: function (connection, collections, cb) {
+        registerConnection: function(connection, collections, cb) {
             var dialect;
             var knexClient;
             switch(connection.dbType) {
@@ -66,7 +66,7 @@ module.exports = (function () {
                 getPk: function(tableName){
                     var definition = this.collections[tableName].definition;
                     var pk;
-                    _.keys(definition).forEach(function (attrName) {
+                    _.keys(definition).forEach(function(attrName) {
                         var attr = definition[attrName];
                         if (attr.primaryKey) {
                             pk = attrName;
@@ -78,7 +78,7 @@ module.exports = (function () {
 
             return cb();
         },
-        define: function (connectionName, tableName, definition, cb) {
+        define: function(connectionName, tableName, definition, cb) {
             // Define a new "table" or return connection.collections[tableName];"collection" schema in the data store
             var self = this;
             var connection = connections[connectionName];
@@ -89,16 +89,16 @@ module.exports = (function () {
             if (!collection) {
                 return cb(util.format('Unknown tableName `%s` in connection `%s`', tableName, connectionName));
             }
-            connection.dialect.createTable(connection,collection,definition).asCallback(function (err,data) {
+            connection.dialect.createTable(connection,collection,definition).asCallback(function(err,data) {
                 if (err) {
                     return cb(err);
                 }
-                self.describe(connectionName, tableName, function (err) {
+                self.describe(connectionName, tableName, function(err) {
                     cb(err, null);
                 });
             });
         },
-        describe: function (connectionName, tableName, cb) {
+        describe: function(connectionName, tableName, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -111,7 +111,7 @@ module.exports = (function () {
             var tableName = connection.dialect.normalizeTableName(tableName);
             connection.collections[tableName] = collection;
             
-            connection.dialect.describe(connection, collection, function (err, schema) {
+            connection.dialect.describe(connection, collection, function(err, schema) {
                 if (err && err.code === 'ER_NO_SUCH_TABLE'){
                         if(LOG_QUERIES) console.log('Table',tableName,'doesn\'t exist, creating it ...');
                         return cb();
@@ -126,7 +126,7 @@ module.exports = (function () {
                 cb(null, normalizedSchema);
             }, LOG_QUERIES);
         },
-        find: function (connectionName, tableName, options, cb) {
+        find: function(connectionName, tableName, options, cb) {
             if (options.groupBy || options.sum || options.average || options.min || options.max) {
                 if (!options.sum && !options.average && !options.min && !options.max) {
                     return cb(Errors.InvalidGroupBy);
@@ -138,9 +138,14 @@ module.exports = (function () {
             }
             var collection = connection.collections[tableName];
             /* replace attributes names by columnNames */
-            connection.dialect.select(connection, collection, options).asCallback(cb);
+            connection.dialect.select(connection, collection, options).asCallback(function(err, result) {
+              if (err) {
+                return cb(err);
+              }
+              cb(null, Utils.castAll(collection.definition, result));
+            });
         },
-        count: function (connectionName, tableName, options, cb) {
+        count: function(connectionName, tableName, options, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -148,7 +153,7 @@ module.exports = (function () {
             var collection = connection.collections[tableName];
             connection.dialect.count(connection, collection, options).asCallback(cb);
         },
-        drop: function (connectionName, tableName, relations, cb) {
+        drop: function(connectionName, tableName, relations, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -167,7 +172,7 @@ module.exports = (function () {
                 dropTable(tableName, cb);
             }).fail(cb);
         },
-        createEach: function (connectionName, tableName, valuesList, cb) {
+        createEach: function(connectionName, tableName, valuesList, cb) {
             var self = this;
             var connection = connections[connectionName];
             if (!connection) {
@@ -175,12 +180,13 @@ module.exports = (function () {
             }
             var collection = connection.collections[tableName];
             var records = [];
-            asynk.each(valuesList, function (data, cb) {
+            asynk.each(valuesList, function(data, cb) {
                 connection.dialect.insert(connection,collection,Utils.prepareValues(data)).asCallback(function(err,record) {
                     if (err) {
                         return cb(err);
                     }
-                    records.push(record);
+                    
+                    records.push(Utils.castAll(collection.definition, records));
                     cb(null,record);
                 });
             }).parallel().done(function() {
@@ -190,31 +196,39 @@ module.exports = (function () {
                 cb(null, records);
             }).fail(cb);
         },
-        create: function (connectionName, tableName, data, cb) {
+        create: function(connectionName, tableName, data, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
             }
             var collection = connection.collections[tableName];
             var _insertData = Utils.prepareValues(_.clone(data));
-            connection.dialect.insert(connection,collection,_insertData).asCallback(function(err,data){
-              cb(err,data);
+            connection.dialect.insert(connection,collection,_insertData).asCallback(function(err,data) {
+              cb(err, Utils.castAll(collection.definition, data));
             });
         },
-        destroy: function (connectionName, collectionName, options, cb) {
+        destroy: function(connectionName, collectionName, options, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
             }
             var collection = connection.collections[collectionName];
-            asynk.add(function (callback) { connection.dialect.select(connection, collection, options).asCallback(callback); }).alias('select')
-                .add(function (callback) { connection.dialect.delete(connection, collection, options).asCallback(callback); })
-                .serie([asynk.data('select')]).done(function(select){
-                  cb(null,select);
-                }).fail(cb);
+            asynk.add(function(callback) {
+              connection.dialect.select(connection, collection, options).asCallback(callback);
+            }).alias('select')
+              .add(function(select, callback) {
+                var pk = connections[connectionName].getPk(collectionName);
+                var ids = _.pluck(select, pk);
+                var idsoptions = {where: {}};
+                idsoptions.where[pk] = ids;
+                connection.dialect.delete(connection, collection, idsoptions).asCallback(callback);
+              }).args(asynk.data('select'), asynk.callback)
+              .serie([asynk.data('select')]).done(function(select){
+                  cb(null, Utils.castAll(collection.definition, select));
+              }).fail(cb);
 
         },
-        update: function (connectionName, collectionName, options, values, cb) {
+        update: function(connectionName, collectionName, options, values, cb) {
             var connection = connections[connectionName];
             if (!connection) {
                 return cb(util.format('Unknown connection `%s`', connectionName));
@@ -237,8 +251,8 @@ module.exports = (function () {
             }).alias('ids')
                 .add(function(idsoptions,callback){connection.dialect.update(connection, collection, idsoptions, values).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
                 .add(function(idsoptions,callback){connection.dialect.select(connection, collection, idsoptions).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
-                .serie().done(function(data){
-                  cb(null,data[2]); 
+                .serie().done(function(data) {
+                  cb(null, Utils.castAll(collection.definition, data[2]));
               }).fail(cb);
         },
         query: function(connectionName, collectionName, query, data, cb, connection) {
@@ -262,7 +276,7 @@ module.exports = (function () {
             }
             connection.client.raw(query).asCallback(cb);
         },
-        join: function (connectionName, tableName, options, cb) {
+        join: function(connectionName, tableName, options, cb) {
             var connection = connections[connectionName];
             var collection = connection.getCollection(tableName);
             var cursor = new Cursor(tableName,connection,options.joins);
