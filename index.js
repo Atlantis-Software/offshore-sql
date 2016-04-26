@@ -138,7 +138,13 @@ module.exports = (function () {
             }
             var collection = connection.collections[tableName];
             /* replace attributes names by columnNames */
-            connection.dialect.select(connection, collection, options).asCallback(cb);
+            connection.dialect.select(connection, collection, options).asCallback(function(err, result) {
+              if (err) {
+                return cb(err);
+              }
+              result = Utils.castAll(collection.definition, result);
+              cb(null,result);
+            });
         },
         count: function (connectionName, tableName, options, cb) {
             var connection = connections[connectionName];
@@ -187,6 +193,7 @@ module.exports = (function () {
                 if (!records.length) {
                     return cb(null, []);
                 }
+                records = Utils.castAll(collection.definition, records);
                 cb(null, records);
             }).fail(cb);
         },
@@ -198,6 +205,7 @@ module.exports = (function () {
             var collection = connection.collections[tableName];
             var _insertData = Utils.prepareValues(_.clone(data));
             connection.dialect.insert(connection,collection,_insertData).asCallback(function(err,data){
+              data = Utils.castAll(collection.definition, data);
               cb(err,data);
             });
         },
@@ -218,6 +226,7 @@ module.exports = (function () {
                 connection.dialect.delete(connection, collection, idsoptions).asCallback(callback);
               }).args(asynk.data('select'), asynk.callback)
               .serie([asynk.data('select')]).done(function(select){
+                  select = Utils.castAll(collection.definition, select);
                   cb(null,select);
               }).fail(cb);
 
@@ -246,6 +255,7 @@ module.exports = (function () {
                 .add(function(idsoptions,callback){connection.dialect.update(connection, collection, idsoptions, values).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
                 .add(function(idsoptions,callback){connection.dialect.select(connection, collection, idsoptions).asCallback(callback);}).args(asynk.data('ids'), asynk.callback)
                 .serie().done(function(data){
+                  data[2] = Utils.castAll(collection.definition, data[2]);
                   cb(null,data[2]); 
               }).fail(cb);
         },
