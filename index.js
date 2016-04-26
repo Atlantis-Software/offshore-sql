@@ -207,11 +207,19 @@ module.exports = (function () {
                 return cb(util.format('Unknown connection `%s`', connectionName));
             }
             var collection = connection.collections[collectionName];
-            asynk.add(function (callback) { connection.dialect.select(connection, collection, options).asCallback(callback); }).alias('select')
-                .add(function (callback) { connection.dialect.delete(connection, collection, options).asCallback(callback); })
-                .serie([asynk.data('select')]).done(function(select){
+            asynk.add(function (callback) {
+              connection.dialect.select(connection, collection, options).asCallback(callback);
+            }).alias('select')
+              .add(function (select, callback) {
+                var pk = connections[connectionName].getPk(collectionName);
+                var ids = _.pluck(select, pk);
+                var idsoptions = {where: {}};
+                idsoptions.where[pk] = ids;
+                connection.dialect.delete(connection, collection, idsoptions).asCallback(callback);
+              }).args(asynk.data('select'), asynk.callback)
+              .serie([asynk.data('select')]).done(function(select){
                   cb(null,select);
-                }).fail(cb);
+              }).fail(cb);
 
         },
         update: function (connectionName, collectionName, options, values, cb) {
