@@ -95,11 +95,9 @@ module.exports = (function() {
       if (!transactions[trxId]) {
         return cb(new Error('No transaction with this id'));
       }
-      console.log('COMMIT CNX : ', trxId);
       transactions[trxId].transaction.commit().asCallback(cb);
     },
     rollback: function(trxId, collections, cb) {
-      console.log('ROLLBACK ID : ', trxId);
       if (!transactions[trxId]) {
         return cb(new Error('No transaction with this id'));
       }
@@ -164,7 +162,6 @@ module.exports = (function() {
       } else {
         connection = connections[connectionName];
       }
-      console.log('CONNECTION NAME : ', connectionName);
       if (options.groupBy || options.sum || options.average || options.min || options.max) {
         if (!options.sum && !options.average && !options.min && !options.max) {
           return cb(Errors.InvalidGroupBy);
@@ -178,7 +175,6 @@ module.exports = (function() {
       /* replace attributes names by columnNames */
       var query = connection.dialect.select(connection, collection, options);
       if (transaction) {
-        console.log('QUERY FIND : ', query);
         query.transacting(transactions[connectionName].transaction);
       }
       query.asCallback(function(err, result) {
@@ -273,7 +269,6 @@ module.exports = (function() {
       }).fail(cb);
     },
     create: function(connectionName, tableName, data, cb) {
-      console.log('CON NAME : ', connectionName);
       var connection;
       var transaction;
       if (transactions[connectionName]) {
@@ -289,18 +284,18 @@ module.exports = (function() {
       var _insertData = Utils.prepareValues(_.clone(data));
       var query = connection.dialect.insert(connection, collection, _insertData);
       if (transaction) {
-        console.log('QUERY CREATE : ', query);
         query.transacting(transactions[connectionName].transaction);
       }
-      /*query.then(function(result) {
+      query.asCallback(function(err, result) {
+        if (err) {
+          cb('Create error : ', err);
+        }
         var pkval = {};
+        var pk = connection.getPk(tableName);
         if (collection.definition[pk].autoIncrement) {
           pkval[pk] = Utils.cast(collection.definition[pk].type, result[0]);
         }
-        return _.extend({}, record, pkval);
-      });*/
-      query.asCallback(function(err, data) {
-        cb(err, Utils.castAll(collection.definition, data));
+        cb(null, _.extend({}, data, pkval));
       });
     },
     destroy: function(connectionName, collectionName, options, cb) {

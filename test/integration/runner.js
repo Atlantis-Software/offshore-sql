@@ -65,11 +65,11 @@ new TestRunner({
 
   // Default connection config to use.
   config: {
-    dbType: process.env.OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_DB_TYPE || 'mysql',   
-    host: process.env.OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_HOST || '127.0.0.1',
-    user: process.env.MYSQL_ENV_MYSQL_USER || process.env.OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_USER || 'root',
-    password: process.env.MYSQL_ENV_MYSQL_PASSWORD || process.env.OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_PASSWORD || '',
-    database: process.env.MYSQL_ENV_MYSQL_DATABASE || process.env.OFFSHORE_ADAPTER_TESTS_OFFSHORE_SQL_DB|| 'offshoreSql'
+    dbType: process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE || 'mysql',
+    host: process.env.OFFSHORE_ADAPTER_TESTS_SQL_HOST || '127.0.0.1',
+    user: process.env.MYSQL_ENV_MYSQL_USER || process.env.OFFSHORE_ADAPTER_TESTS_SQL_USER || 'root',
+    password: process.env.MYSQL_ENV_MYSQL_PASSWORD || process.env.OFFSHORE_ADAPTER_TESTS_SQL_PASSWORD || '',
+    database: process.env.MYSQL_ENV_MYSQL_DATABASE || process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB || 'offshoreSql'
   },
 
   // The set of adapter interfaces to test against.
