@@ -2,14 +2,14 @@ var Knex = require('knex');
 var asynk = require('asynk');
 var Cursor = require('./lib/cursor');
 var Utils = require('./lib/utils');
-var _ = require('underscore');
+var _ = require('lodash');
 var Errors = require('offshore-errors').adapter;
 var util = require('util');
 var LOG_QUERIES = false;
 var LOG_ERRORS = true;
 
-var oracleDialect = require('./lib/dialects/oracleDialect.js');
-var mysqlDialect = require('./lib/dialects/mysqlDialect.js');
+var oracleDialect = require('./lib/dialects/oracle');
+var mysqlDialect = require('./lib/dialects/mysql');
 
 module.exports = (function() {
   var connections = {};
@@ -316,7 +316,7 @@ module.exports = (function() {
       }).alias('select')
         .add(function(select, callback) {
           var pk = connection.getPk(collectionName);
-          var ids = _.pluck(select, pk);
+          var ids = _.map(select, pk);
           var idsoptions = {where: {}};
           idsoptions.where[pk] = ids;
           var query = connection.dialect.delete(connection, collection, idsoptions);
@@ -352,7 +352,7 @@ module.exports = (function() {
             return callback(err);
           }
           var pk = connection.getPk(collectionName);
-          var ids = _.pluck(data, pk);
+          var ids = _.map(data, pk);
           var idsoptions = {where: {}};
           idsoptions.where[pk] = ids;
           callback(null, idsoptions);
