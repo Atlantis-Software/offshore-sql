@@ -37,7 +37,8 @@
     "interfaces": [
       "semantic",
       "queryable",
-      "associations"
+      "associations",
+      "transactable"
     ]
   },
   "waterlineAdapter": {
@@ -45,7 +46,8 @@
     "interfaces": [
       "semantic",
       "queryable",
-      "associations"
+      "associations",
+      "transactable"
     ]
   },
   "readme": "Sql Databases Adapter for Offshore.\n",
