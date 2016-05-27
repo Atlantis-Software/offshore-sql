@@ -46,8 +46,7 @@
     "interfaces": [
       "semantic",
       "queryable",
-      "associations",
-      "transactable"
+      "associations"
     ]
   },
   "readme": "Sql Databases Adapter for Offshore.\n",
