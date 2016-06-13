@@ -6,7 +6,7 @@ var _ = require('lodash');
 var Errors = require('offshore-errors').adapter;
 var util = require('util');
 var LOG_QUERIES = false;
-var LOG_ERRORS = true;
+var LOG_ERRORS = false;
 
 var oracleDialect = require('./lib/dialects/oracle');
 var mysqlDialect = require('./lib/dialects/mysql');
@@ -89,6 +89,10 @@ module.exports = (function() {
           transaction: trx
         };
         return cb(null, trxId);
+      }).catch(function(err) {
+        if (LOG_ERRORS) {
+          console.log(err);
+        }
       });
     },
     commit: function(trxId, collections, cb) {
@@ -102,7 +106,7 @@ module.exports = (function() {
         return cb(new Error('No transaction with this id'));
       }
 
-      transactions[trxId].transaction.rollback().asCallback(cb);
+      transactions[trxId].transaction.rollback(new Error('Rollback')).asCallback(cb);
     },
     define: function(connectionName, tableName, definition, cb) {
       // Define a new "table" or return connection.collections[tableName];"collection" schema in the data store
@@ -288,7 +292,7 @@ module.exports = (function() {
       }
       query.asCallback(function(err, result) {
         if (err) {
-          cb('Create error : ', err);
+          cb(err);
         }
         var pkval = {};
         var pk = connection.getPk(tableName);
@@ -312,7 +316,11 @@ module.exports = (function() {
       }
       var collection = connection.collections[collectionName];
       asynk.add(function(callback) {
-        connection.dialect.select(connection, collection, options).asCallback(callback);
+        var querySelect = connection.dialect.select(connection, collection, options);
+        if (transaction) {
+          querySelect.transacting(transactions[connectionName].transaction);
+        }
+        querySelect.asCallback(callback);
       }).alias('select')
         .add(function(select, callback) {
           var pk = connection.getPk(collectionName);
@@ -347,7 +355,11 @@ module.exports = (function() {
       var values = Utils.prepareValues(values);
 
       asynk.add(function(callback) {
-        connection.dialect.select(connection, collection, options).asCallback(function(err, data) {
+        var selectQuery = connection.dialect.select(connection, collection, options);
+        if (transaction) {
+            selectQuery.transacting(transactions[connectionName].transaction);
+          }
+        selectQuery.asCallback(function(err, data) {
           if (err) {
             return callback(err);
           }
@@ -366,7 +378,11 @@ module.exports = (function() {
           query.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .add(function(idsoptions, callback) {
-          connection.dialect.select(connection, collection, idsoptions).asCallback(callback);
+          var secondSelectQuery = connection.dialect.select(connection, collection, idsoptions);
+          if (transaction) {
+            secondSelectQuery.transacting(transactions[connectionName].transaction);
+          }
+          secondSelectQuery.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .serie().done(function(data) {
         cb(null, Utils.castAll(collection.definition, data[2]));
@@ -412,7 +428,11 @@ module.exports = (function() {
       }
       var collection = connection.getCollection(tableName);
       var cursor = new Cursor(tableName, connection, options.joins);
-      var query = connection.dialect.select(connection, collection, options).then(function(results) {
+      var query = connection.dialect.select(connection, collection, options);
+      if (transaction) {
+        query.transacting(transaction);
+      }
+      query.then(function(results) {
         return cursor.process(results);
       }).asCallback(cb);
     }
