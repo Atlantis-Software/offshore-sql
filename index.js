@@ -179,7 +179,7 @@ module.exports = (function() {
       /* replace attributes names by columnNames */
       var query = connection.dialect.select(connection, collection, options);
       if (transaction) {
-        query.transacting(transactions[connectionName].transaction);
+        query.transacting(transaction);
       }
       query.asCallback(function(err, result) {
         if (err) {
@@ -203,7 +203,7 @@ module.exports = (function() {
       var collection = connection.collections[tableName];
       var query = connection.dialect.count(connection, collection, options);
       if (transaction) {
-        query.transacting(transactions[connectionName].transaction);
+        query.transacting(transaction);
       }
       query.asCallback(cb);
     },
@@ -228,7 +228,7 @@ module.exports = (function() {
         var collection = connection.collections[tableName];
         var query = connection.dialect.dropTable(connection, collection);
         if (transaction) {
-          query.transacting(transactions[connectionName].transaction);
+          query.transacting(transaction);
         }
         query.asCallback(callback);
       }
@@ -255,7 +255,7 @@ module.exports = (function() {
       asynk.each(valuesList, function(data, cb) {
         var query = connection.dialect.insert(connection, collection, Utils.prepareValues(data));
         if (transaction) {
-          query.transacting(transactions[connectionName].transaction);
+          query.transacting(transaction);
         }
         query.asCallback(function(err, record) {
           if (err) {
@@ -288,7 +288,7 @@ module.exports = (function() {
       var _insertData = Utils.prepareValues(_.clone(data));
       var query = connection.dialect.insert(connection, collection, _insertData);
       if (transaction) {
-        query.transacting(transactions[connectionName].transaction);
+        query.transacting(transaction);
       }
       query.asCallback(function(err, result) {
         if (err) {
@@ -318,7 +318,7 @@ module.exports = (function() {
       asynk.add(function(callback) {
         var querySelect = connection.dialect.select(connection, collection, options);
         if (transaction) {
-          querySelect.transacting(transactions[connectionName].transaction);
+          querySelect.transacting(transaction);
         }
         querySelect.asCallback(callback);
       }).alias('select')
@@ -329,7 +329,7 @@ module.exports = (function() {
           idsoptions.where[pk] = ids;
           var query = connection.dialect.delete(connection, collection, idsoptions);
           if (transaction) {
-            query.transacting(transactions[connectionName].transaction);
+            query.transacting(transaction);
           }
           query.asCallback(callback);
         }).args(asynk.data('select'), asynk.callback)
@@ -357,7 +357,7 @@ module.exports = (function() {
       asynk.add(function(callback) {
         var selectQuery = connection.dialect.select(connection, collection, options);
         if (transaction) {
-            selectQuery.transacting(transactions[connectionName].transaction);
+            selectQuery.transacting(transaction);
           }
         selectQuery.asCallback(function(err, data) {
           if (err) {
@@ -373,14 +373,14 @@ module.exports = (function() {
         .add(function(idsoptions, callback) {
           var query = connection.dialect.update(connection, collection, idsoptions, values);
           if (transaction) {
-            query.transacting(transactions[connectionName].transaction);
+            query.transacting(transaction);
           }
           query.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .add(function(idsoptions, callback) {
           var secondSelectQuery = connection.dialect.select(connection, collection, idsoptions);
           if (transaction) {
-            secondSelectQuery.transacting(transactions[connectionName].transaction);
+            secondSelectQuery.transacting(transaction);
           }
           secondSelectQuery.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
