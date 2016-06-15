@@ -29,11 +29,11 @@
   },
   "devDependencies": {
     "mocha": "~2.2.4",
-    "offshore-adapter-tests": "~0.0.7",
+    "offshore-adapter-tests": "~0.0.8",
     "captains-log": "~0.11.11"
   },
   "offshoreAdapter": {
-    "offshoreVersion": "~0.0.5",
+    "offshoreVersion": "~0.0.6",
     "interfaces": [
       "semantic",
       "queryable",
