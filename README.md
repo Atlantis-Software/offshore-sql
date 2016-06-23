@@ -41,6 +41,8 @@ Property | Value | Description
 
 You can then assign connection to models when extending them to Offshore.
 
+Last steps : load the collections then initialize offshore with the config object we created.
+
 ```javascript
 var Offshore = require('offshore');
 var Adapter = require('offshore-sql');
