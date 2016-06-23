@@ -88,7 +88,8 @@ offshore.loadCollection(User);
 offshore.initialize(config, function(err, ontology) {
   
   User = ontology.collections.user;
-  // We can now query our model : https://github.com/Atlantis-Software/offshore-docs/blob/master/queries/query-methods.md
+  // We can now query our model
+  // https://github.com/Atlantis-Software/offshore-docs/blob/master/queries/query-methods.md
 });
 ```
 
