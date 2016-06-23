@@ -1,6 +1,6 @@
 # offshore-sql
 
-[offshore](https://github.com/Atlantis-Software/offshore) adapter for sql databases.
+Offshore-sql is an adapter for sql databases, created for [Offshore](https://github.com/Atlantis-Software/offshore);
 
 ## Installation
 
@@ -20,12 +20,7 @@ Oracledb is currently in beta ...
 
 More to come later
 
-## Offshore Configuration
-
-Offshore is configured with a JSON object passed during initialization.
-This object contains two keys : 
-+ ```adapters``` : An object containing the different adapters you wish to use.
-+ ```connections``` : An object containing the different connections you want to use.
+## Offshore-sql Configuration
 
 Connections are defined by the following attributes :
 
@@ -40,8 +35,6 @@ Property | Value | Description
 `adapter` | `string` | Adapter used by this connection. It must correspond to one of the `adapters` defined before.
 
 You can then assign connection to models when extending them to Offshore.
-
-Last steps : load the collections then initialize offshore with the config object we created.
 
 ```javascript
 var Offshore = require('offshore');
@@ -95,7 +88,7 @@ offshore.loadCollection(User);
 offshore.initialize(config, function(err, ontology) {
   
   User = ontology.collections.user;
-  // We can now query our model
+  // We can now query our model : https://github.com/Atlantis-Software/offshore-docs
 });
 ```
 
