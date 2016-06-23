@@ -16,9 +16,9 @@ for Mysql
 $ npm install mysql --save
 ```
 
-Oracledb is in beta ...
+Oracledb is currently in beta ...
 
-more become later
+More to come later
 
 ## Offshore Configuration
 
