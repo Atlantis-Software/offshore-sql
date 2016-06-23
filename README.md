@@ -34,8 +34,6 @@ Property | Value | Description
 `database` | `string` | Database name.
 `adapter` | `string` | Adapter used by this connection. It must correspond to one of the `adapters` defined before.
 
-You can then assign connection to models when extending them to Offshore.
-
 ```javascript
 var Offshore = require('offshore');
 var Adapter = require('offshore-sql');
@@ -45,10 +43,12 @@ var offshore = new Offshore();
 // Define configuration
 var config = {
   adapters: {
+    // Here we define an adapter name and assign it our adapter module
     'offshoreAdapter': Adapter
   },
   connections: {
     mySqlConnection: {
+      // adapter is a reference to the adapter name defined above
       adapter: 'offshoreAdapter',
       host: '127.0.0.1',
       port: 13306,
@@ -88,7 +88,7 @@ offshore.loadCollection(User);
 offshore.initialize(config, function(err, ontology) {
   
   User = ontology.collections.user;
-  // We can now query our model : https://github.com/Atlantis-Software/offshore-docs
+  // We can now query our model : https://github.com/Atlantis-Software/offshore-docs/blob/master/queries/query-methods.md
 });
 ```
 
