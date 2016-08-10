@@ -39,6 +39,11 @@
       "queryable",
       "associations",
       "transactable"
+    ],
+    "features": [
+      "cross-adapter",
+      "unique",
+      "autoIncrement.sequential"
     ]
   },
   "waterlineAdapter": {

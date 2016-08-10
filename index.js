@@ -10,6 +10,8 @@ var LOG_ERRORS = false;
 
 var oracleDialect = require('./lib/dialects/oracle');
 var mysqlDialect = require('./lib/dialects/mysql');
+var sqlite3Dialect = require('./lib/dialects/sqlite3');
+var postgresDialect = require('./lib/dialects/postgres');
 
 module.exports = (function() {
   var connections = {};
@@ -50,11 +52,20 @@ module.exports = (function() {
         case 'oracle':
           knexClient = 'oracledb';
           dialect = new oracleDialect();
+          break;
+        case 'sqlite3':
+          knexClient = 'sqlite3';
+          dialect = new sqlite3Dialect();
+          break;
+        case 'postgres':
+          knexClient = 'postgres';
+          dialect = new postgresDialect();
+          break;
       }
       if (!connection.identity)
-        return cb("Errors.IdentityMissing");
+        return cb(new Error("Errors.ConnectionIdentityMissing"));
       if (connections[connection.identity])
-        return cb("Errors.IdentityDuplicate");
+        return cb(new Error("Errors.ConnectionIdentityDuplicate"));
       var client = Knex({client: knexClient, connection: connection, debug: LOG_QUERIES});
       // Store the connection
       connections[connection.identity] = {
@@ -205,7 +216,12 @@ module.exports = (function() {
       if (transaction) {
         query.transacting(transaction);
       }
-      query.asCallback(cb);
+      query.asCallback(function(err, record) {
+          if (err) {
+            return cb(err);
+          }
+          cb(null, Utils.cast({type: 'integer'}, record));
+        });
     },
     drop: function(connectionName, tableName, relations, cb) {
       var connection;
@@ -292,11 +308,11 @@ module.exports = (function() {
       }
       query.asCallback(function(err, result) {
         if (err) {
-          cb(err);
+          return cb(err);
         }
         var pkval = {};
         var pk = connection.getPk(tableName);
-        if (collection.definition[pk].autoIncrement) {
+        if (collection.definition[pk].autoIncrement && result) {
           pkval[pk] = Utils.cast(collection.definition[pk].type, result[0]);
         }
         cb(null, _.extend({}, data, pkval));
@@ -435,6 +451,19 @@ module.exports = (function() {
       query.then(function(results) {
         return cursor.process(results);
       }).asCallback(cb);
+    },
+    teardown: function(connectionName, cb) {
+      if(!connections[connectionName]) {
+        return cb('Connection ' + connectionName + ' not found');
+      }
+      var cnx = connections[connectionName];
+      cnx.client.destroy(function(err) {
+        if(err) {
+          return cb(err);
+        }
+        delete connections[connectionName];
+        return cb();
+      });
     }
   };
 
