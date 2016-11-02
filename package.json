@@ -1,6 +1,6 @@
 {
   "name": "offshore-sql",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Sql Databases adapter for offshore",
   "main": "index.js",
   "scripts": {
