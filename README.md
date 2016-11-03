@@ -1,6 +1,6 @@
 # offshore-sql
 
-Offshore-sql is an adapter for sql databases, created for [Offshore](https://github.com/Atlantis-Software/offshore);
+Offshore-sql is an adapter for sql databases, created for [Offshore](https://github.com/Atlantis-Software/offshore)
 
 ## Installation
 
@@ -11,14 +11,54 @@ $ npm install offshore-sql
 ```
 Install the database driver.
 
-for Mysql
+for mysql
 ```bash
 $ npm install mysql --save
 ```
+for mariadb
+```bash
+$ npm install mariasql --save
+```
+for sqlite3
+```bash
+$ npm install sqlite3 --save
+```
+for postgres
+```bash
+$ npm install pg --save
+```
+for Oracle
+This package require installing the oracle instant client and instant client devel downloadable at url :
 
-Oracledb is currently in beta ...
+http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
 
-More to come later
+for rpm linux :
+
+```bash
+$ su -
+# yum localinstall oracle-instantclient12.1-basic-12.1.0.2.0-1.x86_64.rpm
+# yum localinstall oracle-instantclient12.1-devel-12.1.0.2.0-1.x86_64.rpm
+# exit
+$ vi ~/.bash_profile
+```
+
+add the following lines :
+
+```bash
+export OCI_LIB_DIR=/usr/lib/oracle/12.1/client64/lib/
+export OCI_INCLUDE_DIR=/usr/include/oracle/12.1/client64/
+export OCI_VERSION=12
+export ORACLE_HOME=/usr/lib/oracle/12.1/client64
+export PATH=$PATH:$ORACLE_HOME/bin
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib
+```
+
+save and exit, then :
+
+```bash
+$ source ~/.bash_profile
+$ npm install oracledb --save
+```
 
 ## Offshore-sql Configuration
 
@@ -26,7 +66,7 @@ Connections are defined by the following attributes :
 
 Property | Value | Description
 :---: | :---: | ---
-`dbType` | `string` | Database type (currently, only `mysql` and `oracle` are supported).
+`dbType` | `string` | Database type (`mysql`, `mariadb`, `sqlite3`, `postgres`, `oracle`).
 `host` | `string` | Database server host address.
 `port` | `integer` | Database server port.
 `user` | `string` | Database user.
