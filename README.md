@@ -4,30 +4,31 @@ Offshore-sql is an adapter for sql databases, created for [Offshore](https://git
 
 ## Installation
 
-Install from NPM.
+### Install from NPM.
 
 ```bash
 $ npm install offshore-sql
 ```
-Install the database driver.
+### Install the database driver
 
-for mysql
+#### for mysql
 ```bash
 $ npm install mysql --save
 ```
-for mariadb
+#### for mariadb
 ```bash
 $ npm install mariasql --save
 ```
-for sqlite3
+#### for sqlite3
 ```bash
 $ npm install sqlite3 --save
 ```
-for postgres
+#### for postgres
 ```bash
 $ npm install pg --save
 ```
-for Oracle
+#### for Oracle
+
 This package require installing the oracle instant client and instant client devel downloadable at url :
 
 http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html
