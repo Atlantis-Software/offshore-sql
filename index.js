@@ -116,7 +116,6 @@ module.exports = (function() {
       if (!transactions[trxId]) {
         return cb(new Error('No transaction with this id'));
       }
-
       transactions[trxId].transaction.rollback(new Error('Rollback')).asCallback(cb);
     },
     define: function(connectionName, tableName, definition, cb) {
