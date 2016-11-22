@@ -52,6 +52,18 @@ console.log();
  * run mocha tests against the specified interfaces
  * of the currently-implemented Offshore adapter API.
  */
+
+var config = {
+  dbType: process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE || 'mysql',
+  host: process.env.OFFSHORE_ADAPTER_TESTS_SQL_HOST || '127.0.0.1',
+  user: process.env.MYSQL_ENV_MYSQL_USER || process.env.OFFSHORE_ADAPTER_TESTS_SQL_USER || 'root',
+  password: process.env.MYSQL_ENV_MYSQL_PASSWORD || process.env.OFFSHORE_ADAPTER_TESTS_SQL_PASSWORD || '',
+  database: process.env.MYSQL_ENV_MYSQL_DATABASE || process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB || 'offshoreSql'
+};
+if(config.dbType === 'oracle') {
+  config.stmtCacheSize = 0;
+}
+
 new TestRunner({
 
   // Mocha opts
@@ -64,13 +76,7 @@ new TestRunner({
   adapter: Adapter,
 
   // Default connection config to use.
-  config: {
-    dbType: process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE || 'mysql',
-    host: process.env.OFFSHORE_ADAPTER_TESTS_SQL_HOST || '127.0.0.1',
-    user: process.env.MYSQL_ENV_MYSQL_USER || process.env.OFFSHORE_ADAPTER_TESTS_SQL_USER || 'root',
-    password: process.env.MYSQL_ENV_MYSQL_PASSWORD || process.env.OFFSHORE_ADAPTER_TESTS_SQL_PASSWORD || '',
-    database: process.env.MYSQL_ENV_MYSQL_DATABASE || process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB || 'offshoreSql'
-  },
+  config: config,
 
   // The set of adapter interfaces to test against.
   // (grabbed these from this adapter's package.json file above)
