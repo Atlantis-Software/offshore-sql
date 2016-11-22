@@ -38,27 +38,27 @@ module.exports = (function() {
     dialect: null,
     registerConnection: function(connection, collections, cb) {
       var dialect;
-      var knexClient;
+      var client;
       switch (connection.dbType) {
         case 'mariadb':
-          knexClient = 'mariadb';
           connection.db = connection.database;
+          client = Knex({client: 'mariadb', connection: connection, debug: LOG_QUERIES});
           dialect = new mysqlDialect();
           break;
         case 'mysql':
-          knexClient = 'mysql';
+          client = Knex({client: 'mysql', connection: connection, debug: LOG_QUERIES});
           dialect = new mysqlDialect();
           break;
         case 'oracle':
-          knexClient = 'oracledb';
+          client = Knex({client: 'oracledb', connection: connection, debug: LOG_QUERIES});
           dialect = new oracleDialect();
           break;
         case 'sqlite3':
-          knexClient = 'sqlite3';
+          client = Knex({client: 'sqlite3', connection: connection, debug: LOG_QUERIES, useNullAsDefault: true});
           dialect = new sqlite3Dialect();
           break;
         case 'postgres':
-          knexClient = 'postgres';
+          client = Knex({client: 'postgres', connection: connection, debug: LOG_QUERIES});
           dialect = new postgresDialect();
           break;
       }
@@ -66,7 +66,6 @@ module.exports = (function() {
         return cb(new Error("Errors.ConnectionIdentityMissing"));
       if (connections[connection.identity])
         return cb(new Error("Errors.ConnectionIdentityDuplicate"));
-      var client = Knex({client: knexClient, connection: connection, debug: LOG_QUERIES});
       // Store the connection
       connections[connection.identity] = {
         dialect: dialect,
