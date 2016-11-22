@@ -53,7 +53,7 @@ console.log();
  * of the currently-implemented Offshore adapter API.
  */
 
-let config = {
+var config = {
   dbType: process.env.OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE || 'mysql',
   host: process.env.OFFSHORE_ADAPTER_TESTS_SQL_HOST || '127.0.0.1',
   user: process.env.MYSQL_ENV_MYSQL_USER || process.env.OFFSHORE_ADAPTER_TESTS_SQL_USER || 'root',
