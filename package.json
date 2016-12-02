@@ -25,7 +25,7 @@
     "asynk": ">=0.0.11",
     "lodash": "~4.17.2",
     "offshore-errors": "~0.0.1",
-    "inherits": ">=2.3.0"
+    "inherits": ">=2.0.3"
   },
   "devDependencies": {
     "mocha": "~3.2.0",
