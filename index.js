@@ -441,8 +441,8 @@ module.exports = (function() {
         connection = connections[connectionName];
       }
       var collection = connection.getCollection(tableName);
-      var cursor = new Cursor(tableName, connection, options.joins);
       var query = connection.dialect.select(connection, collection, options);
+      var cursor = new Cursor(tableName, connection, options.joins);
       if (transaction) {
         query.transacting(transaction);
       }
