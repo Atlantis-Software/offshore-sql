@@ -194,7 +194,7 @@ module.exports = (function() {
         if (err) {
           return cb(err);
         }
-        cb(null, Utils.castAll(collection.definition, result));
+        cb(null, Utils.castAll(collection.definition, result, options));
       });
     },
     count: function(connectionName, tableName, options, cb) {
@@ -218,7 +218,7 @@ module.exports = (function() {
           if (err) {
             return cb(err);
           }
-          cb(null, Utils.cast({type: 'integer'}, record));
+          cb(null, Utils.cast({type: 'integer'}, record, options));
         });
     },
     drop: function(connectionName, tableName, relations, cb) {
@@ -276,7 +276,7 @@ module.exports = (function() {
             return cb(err);
           }
 
-          records.push(Utils.castAll(collection.definition, records));
+          records.push(Utils.castAll(collection.definition, records, options));
           cb(null, record);
         });
       }).parallel().done(function() {
@@ -311,7 +311,7 @@ module.exports = (function() {
         var pkval = {};
         var pk = connection.getPk(tableName);
         if (collection.definition[pk].autoIncrement && result) {
-          pkval[pk] = Utils.cast(collection.definition[pk].type, result[0]);
+          pkval[pk] = Utils.cast(collection.definition[pk].type, result[0], pk);
         }
         cb(null, _.extend({}, data, pkval));
       });
@@ -348,7 +348,7 @@ module.exports = (function() {
           query.asCallback(callback);
         }).args(asynk.data('select'), asynk.callback)
         .serie([asynk.data('select')]).done(function(select) {
-        cb(null, Utils.castAll(collection.definition, select));
+        cb(null, Utils.castAll(collection.definition, select, options));
       }).fail(cb);
 
     },
@@ -399,7 +399,7 @@ module.exports = (function() {
           secondSelectQuery.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .serie().done(function(data) {
-        cb(null, Utils.castAll(collection.definition, data[2]));
+        cb(null, Utils.castAll(collection.definition, data[2], options));
       }).fail(cb);
     },
     query: function(connectionName, collectionName, query, data, cb, connection) {
