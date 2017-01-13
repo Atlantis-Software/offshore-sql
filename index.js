@@ -267,7 +267,7 @@ module.exports = (function() {
       var collection = connection.collections[tableName];
       var records = [];
       asynk.each(valuesList, function(data, cb) {
-        var query = connection.dialect.insert(connection, collection, Utils.prepareValues(data));
+        var query = connection.dialect.insert(connection, collection, _.cloneDeep(data));
         if (transaction) {
           query.transacting(transaction);
         }
@@ -299,8 +299,7 @@ module.exports = (function() {
         return cb(util.format('Unknown connection `%s`', connectionName));
       }
       var collection = connection.collections[tableName];
-      var _insertData = Utils.prepareValues(_.clone(data));
-      var query = connection.dialect.insert(connection, collection, _insertData);
+      var query = connection.dialect.insert(connection, collection, _.cloneDeep(data));
       if (transaction) {
         query.transacting(transaction);
       }
@@ -365,8 +364,6 @@ module.exports = (function() {
         return cb(util.format('Unknown connection `%s`', connectionName));
       }
       var collection = connection.collections[collectionName];
-
-      var values = Utils.prepareValues(values);
 
       asynk.add(function(callback) {
         var selectQuery = connection.dialect.select(connection, collection, options);
