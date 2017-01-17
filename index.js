@@ -175,7 +175,7 @@ module.exports = (function() {
       } else {
         connection = connections[connectionName];
       }
-      if (options.groupBy || options.sum || options.average || options.min || options.max) {
+      if (options.groupBy) {
         if (!options.sum && !options.average && !options.min && !options.max) {
           return cb(Errors.InvalidGroupBy);
         }
@@ -186,16 +186,14 @@ module.exports = (function() {
       }
       var collection = connection.collections[tableName];
       /* replace attributes names by columnNames */
-      var query = connection.dialect.select(connection, collection, options);
+      var select = connection.dialect.select(connection, collection, options);
+      var cursor = new Cursor(select);
       if (transaction) {
-        query.transacting(transaction);
+        select.query.transacting(transaction);
       }
-      query.asCallback(function(err, result) {
-        if (err) {
-          return cb(err);
-        }
-        cb(null, Utils.castAll(collection.definition, result, options));
-      });
+      select.query.then(function(results) {
+        return cursor.process(results);
+      }).asCallback(cb);
     },
     count: function(connectionName, tableName, options, cb) {
       var connection;
@@ -329,11 +327,11 @@ module.exports = (function() {
       }
       var collection = connection.collections[collectionName];
       asynk.add(function(callback) {
-        var querySelect = connection.dialect.select(connection, collection, options);
+        var select = connection.dialect.select(connection, collection, options);
         if (transaction) {
-          querySelect.transacting(transaction);
+          select.query.transacting(transaction);
         }
-        querySelect.asCallback(callback);
+        select.query.asCallback(callback);
       }).alias('select')
         .add(function(select, callback) {
           var pk = connection.getPk(collectionName);
@@ -366,11 +364,11 @@ module.exports = (function() {
       var collection = connection.collections[collectionName];
 
       asynk.add(function(callback) {
-        var selectQuery = connection.dialect.select(connection, collection, options);
+        var select = connection.dialect.select(connection, collection, options);
         if (transaction) {
-            selectQuery.transacting(transaction);
+            select.query.transacting(transaction);
           }
-        selectQuery.asCallback(function(err, data) {
+        select.query.asCallback(function(err, data) {
           if (err) {
             return callback(err);
           }
@@ -389,11 +387,11 @@ module.exports = (function() {
           query.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .add(function(idsoptions, callback) {
-          var secondSelectQuery = connection.dialect.select(connection, collection, idsoptions);
+          var secondSelect = connection.dialect.select(connection, collection, idsoptions);
           if (transaction) {
-            secondSelectQuery.transacting(transaction);
+            secondSelect.query.transacting(transaction);
           }
-          secondSelectQuery.asCallback(callback);
+          secondSelect.query.asCallback(callback);
         }).args(asynk.data('ids'), asynk.callback)
         .serie().done(function(data) {
         cb(null, Utils.castAll(collection.definition, data[2], options));
@@ -438,12 +436,12 @@ module.exports = (function() {
         connection = connections[connectionName];
       }
       var collection = connection.getCollection(tableName);
-      var query = connection.dialect.select(connection, collection, options);
-      var cursor = new Cursor(tableName, connection, options);
+      var select = connection.dialect.select(connection, collection, options);
+      var cursor = new Cursor(select);
       if (transaction) {
-        query.transacting(transaction);
+        select.query.transacting(transaction);
       }
-      query.then(function(results) {
+      select.query.then(function(results) {
         return cursor.process(results);
       }).asCallback(cb);
     },
