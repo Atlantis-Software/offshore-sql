@@ -1,6 +1,6 @@
 {
   "name": "offshore-sql",
-  "version": "0.0.7",
+  "version": "0.1.1",
   "description": "Sql Databases adapter for offshore",
   "main": "index.js",
   "scripts": {
@@ -23,17 +23,17 @@
   "dependencies": {
     "knex": "~0.12.6",
     "asynk": ">=0.0.11",
-    "lodash": "~4.17.2",
+    "lodash": "4.17.4",
     "offshore-errors": "~0.0.1",
     "inherits": ">=2.0.3"
   },
   "devDependencies": {
     "mocha": "~3.2.0",
-    "offshore-adapter-tests": "~0.0.9",
+    "offshore-adapter-tests": "Atlantis-Software/offshore-adapter-tests",
     "captains-log": "~0.11.11"
   },
   "offshoreAdapter": {
-    "offshoreVersion": "~0.0.8",
+    "offshoreVersion": "~0.1.0",
     "interfaces": [
       "semantic",
       "queryable",
