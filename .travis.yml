@@ -5,6 +5,8 @@ node_js:
   - "4"
 services: mysql
 sudo: false
+before_install:
+  - npm i -g npm@>=5.7.0
 before_script:
   - mysql -e 'create database offshoreSql;'
   - npm install mysql --save
