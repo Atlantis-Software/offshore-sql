@@ -5,9 +5,10 @@ node_js:
   - "4"
 services: mysql
 sudo: false
+before_install:
+  - npm i -g npm@>=5.7.0
 before_script:
   - mysql -e 'create database offshoreSql;'
-  - npm i -g npm@>=5.7.0
   - npm install mysql --save
 env:
   - OFFSHORE_ADAPTER_TESTS_SQL_HOST=127.0.0.1 OFFSHORE_ADAPTER_TESTS_SQL_USER=root OFFSHORE_ADAPTER_TESTS_SQL_PASSWORD='' OFFSHORE_ADAPTER_TESTS_SQL_DB=offshoreSql OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE=mysql
