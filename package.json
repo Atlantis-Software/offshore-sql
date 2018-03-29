@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "engines": {
-    "npm": "< 5.5 >= 5.7.1"
+    "npm": "~5.7.1"
   },
   "readmeFilename": "README.md",
   "dependencies": {
