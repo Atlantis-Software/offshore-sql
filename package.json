@@ -19,6 +19,9 @@
     "name": "Atlantis Software"
   },
   "license": "MIT",
+  "engines": {
+    "npm": "< 5.5 >= 5.7.1"
+  },
   "readmeFilename": "README.md",
   "dependencies": {
     "knex": "~0.12.6",
