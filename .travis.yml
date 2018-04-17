@@ -1,8 +1,9 @@
 language: node_js
 node_js:
-  - "8"
-  - "6"
-  - "4"
+  - '4'
+  - '6'
+  - '8'
+  - '9'
 services: mysql
 sudo: false
 before_script:
@@ -10,3 +11,5 @@ before_script:
   - npm install mysql --save
 env:
   - OFFSHORE_ADAPTER_TESTS_SQL_HOST=127.0.0.1 OFFSHORE_ADAPTER_TESTS_SQL_USER=root OFFSHORE_ADAPTER_TESTS_SQL_PASSWORD='' OFFSHORE_ADAPTER_TESTS_SQL_DB=offshoreSql OFFSHORE_ADAPTER_TESTS_SQL_DB_TYPE=mysql
+after_success:
+  - npm run coveralls
