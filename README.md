@@ -2,6 +2,16 @@
 
 Offshore-sql is an adapter for sql databases, created for [Offshore](https://github.com/Atlantis-Software/offshore)
 
+[![npm version](https://badge.fury.io/js/offshore-sql.svg)](https://www.npmjs.com/offshore-sql)
+[![Build Status](https://travis-ci.org/Atlantis-Software/offshore-sql.svg?branch=master)](https://travis-ci.org/Atlantis-Software/offshore-sql)
+[![Coverage Status](https://coveralls.io/repos/github/Atlantis-Software/offshore-sql/badge.svg?branch=master)](https://coveralls.io/github/Atlantis-Software/offshore-sql?branch=master)
+[![NSP Status](https://nodesecurity.io/orgs/atlantis/projects/fa52b94f-44de-4f15-a196-4a44a79bce1d/badge)](https://nodesecurity.io/orgs/atlantis/projects/fa52b94f-44de-4f15-a196-4a44a79bce1d)
+[![Dependencies Status](https://david-dm.org/Atlantis-Software/offshore-sql.svg)](https://david-dm.org/Atlantis-Software/offshore-sql)
+
+
+
+
+
 ## Installation
 
 ### Install from NPM.
