@@ -23,7 +23,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "knex": "~0.15.0",
+    "knex": "~0.20.13",
     "asynk": ">=0.0.11",
     "lodash": "4.17.10",
     "offshore-errors": "~0.0.1",
