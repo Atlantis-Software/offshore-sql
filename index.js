@@ -212,7 +212,7 @@ module.exports = (function() {
       if (transaction) {
         query.transacting(transaction);
       }
-      query.asCallback(function(err, record) {
+      query.then(function(cnt){ return cnt[0]['cnt']; }).asCallback(function(err, record) {
           if (err) {
             return cb(err);
           }
