@@ -1,6 +1,6 @@
 {
   "name": "offshore-sql",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Sql Databases adapter for offshore",
   "main": "index.js",
   "scripts": {
@@ -23,11 +23,11 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "knex": "~0.15.0",
-    "asynk": ">=0.0.11",
-    "lodash": "4.17.10",
-    "offshore-errors": "~0.0.1",
-    "inherits": ">=2.0.3"
+    "asynk": "~0.0.11",
+    "inherits": "~2.0.4",
+    "knex": "~0.21.13",
+    "lodash": "~4.17.20",
+    "offshore-errors": "~0.0.1"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",

@@ -8,6 +8,12 @@ var util = require('util');
 var LOG_QUERIES = false;
 var LOG_ERRORS = false;
 
+var warn = function(warning) {
+  if (LOG_ERRORS) {
+    console.warning(warning);
+  }
+};
+
 var oracleDialect = require('./lib/dialects/oracle');
 var mysqlDialect = require('./lib/dialects/mysql');
 var sqlite3Dialect = require('./lib/dialects/sqlite3');
@@ -42,23 +48,23 @@ module.exports = (function() {
       switch (connection.dbType) {
         case 'mariadb':
           connection.db = connection.database;
-          client = Knex({client: 'mariadb', connection: connection, debug: LOG_QUERIES});
+          client = Knex({client: 'mariadb', connection: connection, debug: LOG_QUERIES, log: { warn }});
           dialect = new mysqlDialect();
           break;
         case 'mysql':
-          client = Knex({client: 'mysql', connection: connection, debug: LOG_QUERIES});
+          client = Knex({client: 'mysql', connection: connection, debug: LOG_QUERIES, log: { warn }});
           dialect = new mysqlDialect();
           break;
         case 'oracle':
-          client = Knex({client: 'oracledb', connection: connection, debug: LOG_QUERIES});
+          client = Knex({client: 'oracledb', connection: connection, debug: LOG_QUERIES, log: { warn }});
           dialect = new oracleDialect();
           break;
         case 'sqlite3':
-          client = Knex({client: 'sqlite3', connection: connection, debug: LOG_QUERIES, useNullAsDefault: true});
+          client = Knex({client: 'sqlite3', connection: connection, debug: LOG_QUERIES, log: { warn }, useNullAsDefault: true});
           dialect = new sqlite3Dialect();
           break;
         case 'postgres':
-          client = Knex({client: 'postgres', connection: connection, debug: LOG_QUERIES});
+          client = Knex({client: 'postgres', connection: connection, debug: LOG_QUERIES, log: { warn }});
           dialect = new postgresDialect();
           break;
       }
@@ -93,29 +99,39 @@ module.exports = (function() {
     registerTransaction: function(connection, collections, cb) {
       var cnx = connections[connection];
       var trxId = 'offshore-sql-trx-' + trxIdCount++;
-      cnx.client.transaction(function(trx) {
-        transactions[trxId] = {
-          connection: cnx,
-          transaction: trx
-        };
+      transactions[trxId] = {};
+      transactions[trxId].connection = cnx;
+      transactions[trxId].resolver = cnx.client.transaction(function(trx) {
+        transactions[trxId].transaction = trx;
         return cb(null, trxId);
-      }).catch(function(err) {
-        if (LOG_ERRORS) {
-          console.log(err);
-        }
       });
     },
     commit: function(trxId, collections, cb) {
       if (!transactions[trxId]) {
         return cb(new Error('No transaction with this id'));
       }
-      transactions[trxId].transaction.commit().asCallback(cb);
+      transactions[trxId].transaction.commit();
+      transactions[trxId].resolver.asCallback(function(err) {
+        if (err) {
+          return cb(err);
+        }
+        delete transactions[trxId];
+        cb();
+      });
     },
     rollback: function(trxId, collections, cb) {
       if (!transactions[trxId]) {
         return cb(new Error('No transaction with this id'));
       }
-      transactions[trxId].transaction.rollback(new Error('Rollback')).asCallback(cb);
+      var default_err = new Error('Rollback');
+      transactions[trxId].transaction.rollback(default_err);
+      transactions[trxId].resolver.asCallback(function(err) {
+        if (err && err !== default_err) {
+          return cb(err);
+        }
+        delete transactions[trxId];
+        cb();
+      });
     },
     define: function(connectionName, tableName, definition, cb) {
       // Define a new "table" or return connection.collections[tableName];"collection" schema in the data store
@@ -191,9 +207,12 @@ module.exports = (function() {
       if (transaction) {
         select.query.transacting(transaction);
       }
-      select.query.then(function(results) {
-        return cursor.process(results);
-      }).asCallback(cb);
+      select.query.asCallback(function(err, results) {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, cursor.process(results));
+      });
     },
     count: function(connectionName, tableName, options, cb) {
       var connection;
@@ -212,12 +231,36 @@ module.exports = (function() {
       if (transaction) {
         query.transacting(transaction);
       }
-      query.then(function(cnt){ return cnt[0]['cnt']; }).asCallback(function(err, record) {
+      if (options.groupBy) {
+        var groupBy = options.groupBy;
+        if (!_.isArray(groupBy)) {
+          groupBy = [groupBy];
+        }
+        query.asCallback(function(err, cnt) {
           if (err) {
             return cb(err);
           }
-          cb(null, Utils.cast({type: 'integer'}, record, options));
+          var reduce_count = function(data, lvl) {
+            data = _.groupBy(data, groupBy[lvl]);
+            _.keys(data).forEach(function(key) {
+              if (lvl === groupBy.length - 1) {
+                data[key] = data[key][0]['cnt'];
+              } else {
+                data[key] = reduce_count(data[key], lvl+1);
+              }
+            });
+            return data;
+          };
+          cb(null, reduce_count(cnt, 0));
         });
+      } else {
+        query.asCallback(function(err, record) {
+          if (err) {
+            return cb(err);
+          }
+          cb(null, Utils.cast({type: 'integer'}, record[0]['cnt'], options));
+        });
+      }
     },
     drop: function(connectionName, tableName, relations, cb) {
       var connection;
@@ -441,9 +484,12 @@ module.exports = (function() {
       if (transaction) {
         select.query.transacting(transaction);
       }
-      select.query.then(function(results) {
-        return cursor.process(results);
-      }).asCallback(cb);
+      select.query.asCallback(function(err, results) {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, cursor.process(results));
+      });
     },
     teardown: function(connectionName, cb) {
       if(!connections[connectionName]) {
