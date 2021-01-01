@@ -48,6 +48,18 @@ for rpm linux :
 $ su -
 # yum localinstall oracle-instantclient12.1-basic-12.1.0.2.0-1.x86_64.rpm
 # yum localinstall oracle-instantclient12.1-devel-12.1.0.2.0-1.x86_64.rpm
+# vi /etc/ld.so.conf.d/oracledb.conf
+```
+
+add the following line :
+
+```bash
+/usr/lib/oracle/12.1/client64/lib
+```
+
+save and exit, then :
+
+```bash
 # exit
 $ vi ~/.bash_profile
 ```
